@@ -7,7 +7,7 @@
 #################
 import csv,re,sys
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 ###########
 def getWordLists():
@@ -76,18 +76,19 @@ def main():
   posWords,negWords,stopWords,negationWords=getWordLists()
 
 ########################
-  
   positives=np.zeros(shape=len(tweets))
   negatives=np.zeros(shape=len(tweets))
-
+  
   for t,tweet in enumerate(tweets):
+    if (t+1)%100000==0:
+      print t+1,'PROCESSED....'
 
     posCount=negCount=stopCount=negationCount=0
-
+  
     for w,word in enumerate(tweet.split(' ')):
-
+    
       if v:print word,
-
+      
       if word in posWords:
         posCount+=1
         if v:print ' => POS'
@@ -108,9 +109,32 @@ def main():
     if v:print '(pos,neg,stop,negation) = ',(posCount,negCount,stopCount,negationCount)
     positives[t]=posCount
     negatives[t]=negCount
+ 
+    if negCount>20 or posCount>5:
+      if v:print tweet,posCount,negCount
   
-  np.savetxt('sentiments.txt',np.vstack((positives,negatives)).T,fmt="%d",delimiter='\t') 
-
+  combined=np.vstack((positives,negatives)).T
+  
+  np.savetxt('sentiments.txt',combined,fmt="%d",delimiter='\t') 
+  
+  counts,xedges,yedges,im=plt.hist2d(positives,negatives,bins=[int(np.max(positives)),int(np.max(negatives))])
+  print '%2.2f HAVE ZERO SENTIMENT' % (100.0*counts[0,0]/len(positives))
+ 
+  if True:
+    fig=plt.figure()
+    ax=fig.add_subplot(211)
+    posRange=range(0,int(np.max(positives))+1)
+    ax.hist(positives,bins=posRange)
+    plt.xticks([0.5+i for i in posRange],[str(i) for i in posRange])
+    plt.ylabel('POS')
+    
+    ax=fig.add_subplot(212)
+    negRange=range(0,int(np.max(negatives))+1)
+    ax.hist(negatives,bins=negRange)
+    plt.xticks([0.5+i for i in negRange],[str(i) for i in negRange])
+    plt.ylabel('NEG')
+    plt.show()
+  
 if __name__=="__main__":
   main()
 

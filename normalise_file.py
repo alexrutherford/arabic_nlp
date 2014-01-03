@@ -3,19 +3,11 @@
 # Alex Rutherford 2013
 # Code to pre-process Arabic tweets
 # Running time ~4m for 400k tweets
+# Input file <name>.txt; output <name>_normalised.txt
 #################
 import csv,re,sys
 import string
 import collections
-
-v=False
-# Flag to print steps verbosely
-
-vv=False
-# Flag to print out completed tweet
-# Set to false if redirecting 
-# with '> trash.txt', can't handle unicode
-
 
 ############
 def getWordLists():
@@ -29,6 +21,13 @@ def getWordLists():
 ############
 def main():
 ############
+  v=False
+# Flag to print steps verbosely
+
+  vv=False
+# Flag to print out completed tweet
+# Set to false if redirecting 
+# with '> trash.txt', can't handle unicode
 
   try:
     inFileHandle=open(sys.argv[1],'r')
@@ -55,6 +54,7 @@ def main():
   underscoreRe=re.compile('_')
 # Underscore (for hashtags)
   httpRe=re.compile(u'http')
+  httpCleanRe=re.compile(u'(\n|"|”)')
   atRe=re.compile(u'\A\@')
 
   alifRe=re.compile(u'(آ|أ|إ|آ)')
@@ -72,13 +72,13 @@ def main():
   verbSuffixesRe=re.compile(u'(ون\Z|ين\Z|وا)')
 # Verb sufixes
   harakatRe=re.compile(u'(ٍ|َ|ُ|ِ|ّ|ْ||ً)')
-# Accents
+# Diacritics
 
 ######################
   for t,tweet in enumerate(tweets):
 ######################
 #  print t,tweet
-    if (t+1)%100000==0:
+    if (t+1)%50000==0:
       print t+1,'PROCESSED....'
     tweet=re.sub(underscoreRe,' ',tweet)
 ## Break up underscores eg in hash tags
@@ -139,6 +139,7 @@ def main():
           if v:print '============='
         
         elif isHttp:
+          word=re.sub(httpCleanRe,'',word)
           links[word]+=1
         elif isAt:
           ats[word]+=1
@@ -151,6 +152,9 @@ def main():
     if vv:print ''
     if vv:print '============'
     outFile.writerow([t.encode('utf-8') for t in outTweet])
+
+  linkFile=csv.writer(open('links.csv','w'),delimiter='\t')
+  for k,v in links.items():linkFile.writerow([v,k.encode('utf-8')])
 
 if __name__=="__main__":
   main()
