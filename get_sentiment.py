@@ -14,7 +14,7 @@ def getWordLists():
 ###########
 
   posFile=csv.reader(open('pos_words.txt','r'),delimiter='\t')
-  negFile=csv.reader(open('neg_words.txt','r'),delimiter='\t')
+  negFile=csv.reader(open('neg_words_all.txt','r'),delimiter='\t')
   negFileAdd=csv.reader(open('neg_words_add.txt','r'),delimiter='\t')
   stopFile=csv.reader(open('stop_words.txt','r'),delimiter='\t')
   negationFile=csv.reader(open('negation_words.txt','r'),delimiter='\t')
@@ -30,7 +30,7 @@ def getWordLists():
   for line in negFile:
     if len(line)>0:
       negWords.append(line[0])
-  if True:
+  if False:
     for line in negFileAdd:
       if len(line)>0:
         negWords.append(line[0])
