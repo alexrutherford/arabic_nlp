@@ -12,12 +12,13 @@ import collections
 ############
 def getWordLists():
 ############
-  stopWords=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/stop_words.txt','r'),delimiter='\t')]
-  negationWords=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/negation_words.txt','r'),delimiter='\t')]
-  exemptWords=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/exempt_words.txt','r'),delimiter='\t')]
+  stem=''
+  stopWords=[line[0].decode('utf-8') for line in csv.reader(open(stem+'stop_words.txt','r'),delimiter='\t')]
+  negationWords=[line[0].decode('utf-8') for line in csv.reader(open(stem+'negation_words.txt','r'),delimiter='\t')]
+  exemptWords=[line[0].decode('utf-8') for line in csv.reader(open(stem+'exempt_words.txt','r'),delimiter='\t')]
 
-  posEmojis=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/pos_emojis.txt','r'),delimiter='\t')]
-  negEmojis=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/neg_emojis.txt','r'),delimiter='\t')]
+  posEmojis=[line[0].decode('utf-8') for line in csv.reader(open(stem+'pos_emojis.txt','r'),delimiter='\t')]
+  negEmojis=[line[0].decode('utf-8') for line in csv.reader(open(stem+'neg_emojis.txt','r'),delimiter='\t')]
 
   return stopWords,negationWords,exemptWords,posEmojis,negEmojis
 
@@ -41,7 +42,15 @@ def main():
     print 'NEED FILE AS FIRST ARG'
     sys.exit(1)
 
-  tweets=[t.decode('utf-8') for t in inFileHandle.readlines()]
+  if '-v' in sys.argv:
+    v=True
+    print 'SET VERBOSE'
+  if '-vv' in sys.argv:
+    v=True
+    print 'SET VERY VERBOSE'
+
+
+  tweets=[t.split('\t')[0].decode('utf-8') for t in inFileHandle.readlines()]
 #tweets=['?Hello._','http://bbc.co.uk']
 #tweets=[u'سَنة',u'كِتاب',u'مُدّة']
 #tweets=[u'@arutherfordium I hate you']
