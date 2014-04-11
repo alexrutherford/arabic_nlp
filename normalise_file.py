@@ -12,21 +12,26 @@ import collections
 ############
 def getWordLists():
 ############
-  stopWords=[line[0].decode('utf-8') for line in csv.reader(open('stop_words.txt','r'),delimiter='\t')]
-  negationWords=[line[0].decode('utf-8') for line in csv.reader(open('negation_words.txt','r'),delimiter='\t')]
-  exemptWords=[line[0].decode('utf-8') for line in csv.reader(open('exempt_words.txt','r'),delimiter='\t')]
+  stopWords=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/stop_words.txt','r'),delimiter='\t')]
+  negationWords=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/negation_words.txt','r'),delimiter='\t')]
+  exemptWords=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/exempt_words.txt','r'),delimiter='\t')]
 
-  return stopWords,negationWords,exemptWords
+  posEmojis=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/pos_emojis.txt','r'),delimiter='\t')]
+  negEmojis=[line[0].decode('utf-8') for line in csv.reader(open('/Users/alex/SYRIA/TWEETS/SENTIMENT/neg_emojis.txt','r'),delimiter='\t')]
+
+  return stopWords,negationWords,exemptWords,posEmojis,negEmojis
 
 ############
 def main():
 ############
   v=False
+#  v=True
 # Flag to print steps verbosely
 
   vv=False
+#  vv=True
 # Flag to print out completed tweet
-# Set to false if redirecting 
+# Set to false if redirecting
 # with '> trash.txt', can't handle unicode
 
   try:
@@ -41,44 +46,45 @@ def main():
 #tweets=[u'سَنة',u'كِتاب',u'مُدّة']
 #tweets=[u'@arutherfordium I hate you']
 #tweets=[u'انا بغير سعيد']
-  
-  stopWords,negationWords,exemptWords=getWordLists()
+
+  stopWords,negationWords,exemptWords,posEmojis,negEmojis=getWordLists()
+  emojis=posEmojis+negEmojis
 
   exemptCount=0
 
   links=collections.defaultdict(int)
   ats=collections.defaultdict(int)
 
-  puncRe=re.compile('(\n|،|\.|,|!|\?|\]|\[|:|;|\|–|­|‑)')
+  puncRe=u'(\n|،|\.|,|!|\?|\]|\[|:|;|\|–|­|‑)|"'
 # Standard punctuation
-  underscoreRe=re.compile('_')
+  underscoreRe=u'_'
 # Underscore (for hashtags)
-  httpRe=re.compile(u'http')
-  httpCleanRe=re.compile(u'(\n|"|”)')
-  atRe=re.compile(u'\A\@')
+  httpRe=u'http'
+  httpCleanRe=u'(\n|"|”)'
+  atRe=u'\A\@'
 
-  alifRe=re.compile(u'(آ|أ|إ|آ)')
-  alifMaksourRe=re.compile(u'ى')
+  alifRe=u'(آ|أ|إ|آ)'
+  alifMaksourRe=u'ى'
 # Variations of letter alif
-  wawRe=re.compile(u'ؤ')
+  wawRe=u'ؤ'
 # Letter waw
-  hahRe=re.compile(u'ه\Z')
+  hahRe=u'ه\Z'
 # Letter hah
-  alRe=re.compile(u'(\Aال|\Aفال|\Aوال|\Aلل)')
+  alRe=u'(\Aال|\Aفال|\Aوال|\Aلل)'
 # Variations of al
-  tuhaRe=re.compile(u'تها\Z')
-  haRe=re.compile(u'ها\Z')
+  tuhaRe=u'تها\Z'
+  haRe=u'ها\Z'
 # Strip feminine pronoun
-  verbSuffixesRe=re.compile(u'(ون\Z|ين\Z|وا)')
+  verbSuffixesRe=u'(ون\Z|ين\Z|وا)'
 # Verb sufixes
-  harakatRe=re.compile(u'(ٍ|َ|ُ|ِ|ّ|ْ||ً)')
+  harakatRe=u'(ٍ|َ|ُ|ِ|ّ|ْ|ً)'
 # Diacritics
 
 ######################
   for t,tweet in enumerate(tweets):
 ######################
 #  print t,tweet
-    if (t+1)%50000==0:
+    if (t+1)%20000==0:
       print t+1,'PROCESSED....'
     tweet=re.sub(underscoreRe,' ',tweet)
 ## Break up underscores eg in hash tags
@@ -86,25 +92,28 @@ def main():
 
     outTweet=[]
 ######################
-    for w,word in enumerate(tweet.split(' ')):
+    for w,word in enumerate(tweet.split(r' ')):
 ######################
-      isAt=re.match(atRe,word)
-      isHttp=re.match(httpRe,word)
+      isAt=re.match(atRe,word,re.U)
+      isHttp=re.match(httpRe,word,re.U)
       isNeg=(word in negationWords)
       isStop=(word in stopWords)
       isExempt=(word in exemptWords)
-    
+      isEmoji=(word in emojis)
+
       if not (isStop or isNeg or isExempt):
         if v:print '>>>',word
-        if not (isHttp or isAt):
+        if not (isHttp or isAt or isEmoji):
         # Don't clean URLs or @-mentions
 ############
 ## Normalising
           word=re.sub(puncRe,'',word)
-## Remove punctuation and line endings
-          word=re.sub(harakatRe,u'',word)
+# Remove punctuation and line endings...
+# ...but only if not emoji, otherwise keep
+# it unchanged to be counted later
+          word=re.sub(harakatRe,u'',word,flags=re.U)
           if v:print '>>>',word
-# remove diacritics        
+# remove diacritics
           word=re.sub(u'آ',u'ا',word)
           if v:print '>>>',word
           word=re.sub(alifRe,u'ا',word)
@@ -137,7 +146,7 @@ def main():
           if v:print '>>>',word
           outTweet.append(unicode(word))
           if v:print '============='
-        
+
         elif isHttp:
           word=re.sub(httpCleanRe,'',word)
           links[word]+=1
@@ -152,6 +161,7 @@ def main():
     if vv:print ''
     if vv:print '============'
     outFile.writerow([t.encode('utf-8') for t in outTweet])
+#    sys.exit(1)
 
   linkFile=csv.writer(open('links.csv','w'),delimiter='\t')
   for k,v in links.items():linkFile.writerow([v,k.encode('utf-8')])
