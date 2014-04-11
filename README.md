@@ -9,7 +9,10 @@ get\_sentiment.py reads normalised text file, assigns a positive and a negative 
 **Citation**
 
 The list of stop words and labelled positive and negative words in based on the Masters Thesis of Amira Magdy Shoukry
-[link](https://dar.aucegypt.edu/handle/10526/3536)
+Arabic Sentence Level Sentiment Analysis
+American University in Cairo
+Spring 2013
+[(link)](https://dar.aucegypt.edu/handle/10526/3536)
 
 **Dependencies**
 
