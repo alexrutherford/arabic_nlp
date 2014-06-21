@@ -1,140 +1,124 @@
 # -*- coding: utf-8 -*-
-#################
-# Alex Rutherford 2013
-# Code to assign sentiment to Arabic 
-# tweets by counting terms
-# ~2.5m to process 400k tweets
+'''Code to assign sentiment to Arabic tweets by counting terms ~2.5m to process 400k tweets'''
 #################
 import csv,re,sys
 import numpy as np
 import matplotlib.pyplot as plt
+stem=''
 
 ###########
 def getWordLists():
 ###########
+'''Reads terms to be tsted against text from files. Returns tuple of lists of words.'''
+    posFile=csv.reader(open(stem+'pos_words.txt','r'),delimiter='\t')
+    negFile=csv.reader(open(stem+'neg_words_all.txt','r'),delimiter='\t')
+    negFileAdd=csv.reader(open(stem+'neg_words_add.txt','r'),delimiter='\t')
+    stopFile=csv.reader(open(stem+'stop_words.txt','r'),delimiter='\t')
+    negationFile=csv.reader(open(stem+'negation_words.txt','r'),delimiter='\t')
 
-  posFile=csv.reader(open('pos_words.txt','r'),delimiter='\t')
-  negFile=csv.reader(open('neg_words_all.txt','r'),delimiter='\t')
-  negFileAdd=csv.reader(open('neg_words_add.txt','r'),delimiter='\t')
-  stopFile=csv.reader(open('stop_words.txt','r'),delimiter='\t')
-  negationFile=csv.reader(open('negation_words.txt','r'),delimiter='\t')
+    posEmojiFile=csv.reader(open(stem+'pos_emojis.txt','r'),delimiter='\t')
+    negEmojiFile=csv.reader(open(stem+'neg_emojis.txt','r'),delimiter='\t')
 
-  posWords=[]
-  negWords=[]
-  stopWords=[]
-  negationWords=[]
+    posWords=[line[0].decode('utf-8') for line in posFile if len(line[0])>0]
+    negWords=[line[0].decode('utf-8') for line in negFile if len(line[0])>0]
+    negWords+=[line[0].decode('utf-8') for line in negFileAdd if len(line[0])>0]
+    stopWords=[line[0].decode('utf-8') for line in stopFile if len(line[0])>0]
+    negationWords=[line[0].decode('utf-8') for line in negationFile if len(line[0])>0]
+    
+    posEmojis=[line[0].decode('utf-8') for line in posEmojiFile if len(line[0])>0]
+    negEmojis=[line[0].decode('utf-8') for line in negEmojiFile if len(line[0])>0]
 
-  for line in posFile:
-    if len(line)>0:
-      posWords.append(line[0])
-  for line in negFile:
-    if len(line)>0:
-      negWords.append(line[0])
-  if False:
-    for line in negFileAdd:
-      if len(line)>0:
-        negWords.append(line[0])
-  for line in stopFile:
-    if len(line)>0:
-      stopWords.append(line[0])
-  for line in negationFile:
-    if len(line)>0:
-      negationWords.append(line[0])
-
-  posCount=0
-  negCount=0
-  stopCount=0
-  negationCount=0
-
-  posWords=[p.decode('utf-8') for p in posWords]
-  negWords=[p.decode('utf-8') for p in negWords]
-  stopWords=[p.decode('utf-8') for p in stopWords]
-  negationWords=[p.decode('utf-8') for p in negationWords]
-
-  return posWords,negWords,stopWords,negationWords
-
+    return posWords,negWords,stopWords,negationWords,posEmojis,negEmojis
 ###########
 def main():
 ###########
+    posCount=0
+    negCount=0
+    stopCount=0
+    negationCount=0
 
-  try:
-    inFileHandle=open(sys.argv[1],'r')
-  except:
-    print 'NEED FILE AS FIRST ARG'
-    sys.exit(1)
+    try:
+        inFileHandle=open(sys.argv[1],'r')
+    except:
+        print 'NEED FILE AS FIRST ARG'
+        sys.exit(1)
 
-  v=False
-  # Flag to print verbosely
+    v=False
+    # Flag to print verbosely
 
-  if len(sys.argv)>2:
-    if sys.argv[2]=='-v':
-      v=True
-# Set verbose logging
+    if len(sys.argv)>2:
+        if sys.argv[2]=='-v':
+        v=True
+        # Set verbose logging
 
-  tweets=[t.decode('utf-8') for t in inFileHandle.readlines()]  
-  
-  posWords,negWords,stopWords,negationWords=getWordLists()
+    tweets=[t.decode('utf-8') for t in inFileHandle.readlines()]
+
+    posWords,negWords,stopWords,negationWords,posEmojis,negEmojis=getWordLists()
 
 ########################
-  positives=np.zeros(shape=len(tweets))
-  negatives=np.zeros(shape=len(tweets))
-  
-  for t,tweet in enumerate(tweets):
-    if (t+1)%100000==0:
-      print t+1,'PROCESSED....'
+    positives=np.zeros(shape=len(tweets))
+    negatives=np.zeros(shape=len(tweets))
+
+    for t,tweet in enumerate(tweets):
+        if (t+1)%100000==0:print t+1,'PROCESSED....'
 
     posCount=negCount=stopCount=negationCount=0
-  
+
     for w,word in enumerate(tweet.split(' ')):
-    
-      if v:print word,
+
+        if v:print word,
+
+        if word in posWords:
+            posCount+=1
+            if v:print ' => POS'
+ 
+        if word in negWords:
+            negCount+=1
+            if v:print ' => NEG'
       
-      if word in posWords:
-        posCount+=1
-        if v:print ' => POS'
-        continue
-      if word in negWords:
-        negCount+=1
-        if v:print ' => NEG'
-        continue
-      if word in stopWords:
-        stopCount+=1
-        if v:print ' => STOP'
-        continue
-      if word in negationWords:
-        negationCount+=1
-        if v:print ' => NEGATION'
-        continue
-      if v:print ''
+        if word in stopWords:stopCount+=1
+            if v:print ' => STOP'
+      
+        if word in negationWords:
+            negationCount+=1
+            if v:print ' => NEGATION'
+      
+        if word in posEmojis:
+            posCount+=1
+        
+        if word in negEmojis:
+            negCount+=1
+      
+        if v:print ''
     if v:print '(pos,neg,stop,negation) = ',(posCount,negCount,stopCount,negationCount)
     positives[t]=posCount
     negatives[t]=negCount
- 
-    if negCount>20 or posCount>5:
-      if v:print tweet,posCount,negCount
-  
-  combined=np.vstack((positives,negatives)).T
-  
-  np.savetxt('sentiments.txt',combined,fmt="%d",delimiter='\t') 
-  
-  counts,xedges,yedges,im=plt.hist2d(positives,negatives,bins=[int(np.max(positives)),int(np.max(negatives))])
-  print '%2.2f HAVE ZERO SENTIMENT' % (100.0*counts[0,0]/len(positives))
- 
-  if True:
-    fig=plt.figure()
-    ax=fig.add_subplot(211)
-    posRange=range(0,int(np.max(positives))+1)
-    ax.hist(positives,bins=posRange)
-    plt.xticks([0.5+i for i in posRange],[str(i) for i in posRange])
-    plt.ylabel('POS')
-    
-    ax=fig.add_subplot(212)
-    negRange=range(0,int(np.max(negatives))+1)
-    ax.hist(negatives,bins=negRange)
-    plt.xticks([0.5+i for i in negRange],[str(i) for i in negRange])
-    plt.ylabel('NEG')
-    plt.show()
-  
+
+    if negCount>2 or posCount>2:
+        if True:print tweet,posCount,negCount
+
+    combined=np.vstack((positives,negatives)).T
+
+    np.savetxt('sentiments.txt',combined,fmt="%d",delimiter='\t')
+
+    counts,xedges,yedges,im=plt.hist2d(positives,negatives,bins=[int(np.max(positives)),int(np.max(negatives))])
+    print '%2.2f HAVE ZERO SENTIMENT' % (100.0*counts[0,0]/len(positives))
+
+    if True:
+    # Plot distribution of sentiments?
+        fig=plt.figure()
+        ax=fig.add_subplot(211)
+        posRange=range(0,int(np.max(positives))+1)
+        ax.hist(positives,bins=posRange)
+        plt.xticks([0.5+i for i in posRange],[str(i) for i in posRange])
+        plt.ylabel('Positive Sentiment')
+
+        ax=fig.add_subplot(212)
+        negRange=range(0,int(np.max(negatives))+1)
+        ax.hist(negatives,bins=negRange)
+        plt.xticks([0.5+i for i in negRange],[str(i) for i in negRange])
+        plt.ylabel('Negative Sentiment')
+        plt.show()
+
 if __name__=="__main__":
   main()
-
