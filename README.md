@@ -17,3 +17,7 @@ Spring 2013
 **Dependencies**
 
 `get_sentiment.py` requires NumPy and Matplotlib, otherwise all code in pure Python
+
+**To Do**
+
+Implement generator for memory friendly treatment of large files
