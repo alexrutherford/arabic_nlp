@@ -16,4 +16,4 @@ Spring 2013
 
 **Dependencies**
 
-`get\_sentiment.py` requires NumPy and Matplotlib, otherwise all code in pure Python
+`get_sentiment.py` requires NumPy and Matplotlib, otherwise all code in pure Python
