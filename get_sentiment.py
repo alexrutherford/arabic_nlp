@@ -29,9 +29,9 @@ def getWordLists():
     posEmojis=[line[0].decode('utf-8') for line in posEmojiFile if len(line)>0]
     negEmojis=[line[0].decode('utf-8') for line in negEmojiFile if len(line)>0]
 
-    posEmojis=[e.replace('(','\(').replace(')','\)').replace('.','\.').replace('|','\|') for e in posEmojis]
-    negEmojis=[e.replace('(','\(').replace(')','\)').replace('.','\.').replace('|','\|') for e in negEmojis]
-    
+    posEmojis=[re.escape(e) for e in posEmojis]    
+    posEmojis=[re.escape(e) for e in negEmojis]   
+     
     return posWords,negWords,stopWords,negationWords,posEmojis,negEmojis
 ###########
 def main():
