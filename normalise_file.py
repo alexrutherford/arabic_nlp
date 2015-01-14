@@ -6,7 +6,7 @@ Input file <name>.txt; output <name>_normalised.txt'''
 import csv,re,sys
 import string
 import collections
-
+from regex import *
 ############
 def getWordLists():
 ############
@@ -62,32 +62,6 @@ def main():
     links=collections.defaultdict(int)
     ats=collections.defaultdict(int)
 
-    puncRe=u'(\r|\n|,|"|\'|\(|\)|-|:|;|\.|!|\?|؟|،|؛|{|}|\[|\]|\\\)'
-    # Standard punctuation
-    underscoreRe=u'\_'
-    hashRe=u'\#'
-    # Underscore (for hashtags)
-    httpRe=u'http'
-    httpCleanRe=u'(\r|\n|"|”)'
-    atRe=u'\A\@'
-
-    alifRe=u'(آ|أ|إ|آ)'
-    alifMaksourRe=u'ى'
-    # Variations of letter alif
-    wawRe=u'ؤ'
-    # Letter waw
-    hahRe=u'ه\Z'
-    # Letter hah
-    alRe=u'(\Aال|\Aفال|\Aوال|\Aلل)'
-    # Variations of al
-    tuhaRe=u'تها\Z'
-    haRe=u'ها\Z'
-    # Strip feminine pronoun
-    verbSuffixesRe=u'(ون\Z|ين\Z|وا)'
-    # Verb sufixes
-    harakatRe=u'(ٍ|َ|ُ|ِ|ّ|ْ|ً)'
-    # Diacritics
-    # All unicode regular expressions must be uncompiled
 
     for tt,tweet in enumerate(tweets):
         if (tt+1)%20000==0:print tt+1,'PROCESSED....'
