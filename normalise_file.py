@@ -3,15 +3,16 @@
 Running time ~4m for 400k tweets on Macbook Pro
 Input file <name>.txt; output <name>_normalised.txt'''
 #################
-import csv,re,sys
+import csv,re,sys,os
 import string
 import codecs
 import collections
-from re import *
+from regex import *
 ############
 def getWordLists(stem=''):
 ############
     '''Loads emoticons and words with assigned sentiments from file.
+    @stem is optional path to files
     Returns tuple of lists of words.'''
 
     with codecs.open(stem+'stop_words.txt','r',encoding='utf-8') as inFile:
@@ -35,30 +36,30 @@ def getWordLists(stem=''):
 def main():
 ############
     v=False
-# Flag to print steps verbosely
+    # Flag to print steps verbosely
 
     vv=False
-# Flag to print out completed tweet
+    # Flag to print out completed document
 
-    try:
-        inFileHandle=open(sys.argv[1],'r')
-        outFile=csv.writer(open(sys.argv[1].partition('.')[0]+'_normalised.txt','w'),delimiter='\t')
-    except:
-        print 'NEED FILE AS FIRST ARG'
+    if os.path.exists(sys.argv[1]):
+        outFile=csv.writer(open(sys.argv[1].partition('.')[0]+'_normalised.txt','w'),delimiter=' ')
+    else:
+        print 'Error: need file as first arg'
         sys.exit(1)
 
     if '-v' in sys.argv:
         v=True
-        print 'SET VERBOSE'
+        print 'Set verbose'
     if '-vv' in sys.argv:
         vv=True
-        print 'SET VERY VERBOSE'
+        print 'Set very verbose'
 
-    lines=[l.split('\t') for l in inFileHandle.readlines()]
-    tweets=[l[0].decode('utf-8') for l in lines]
-    # Take the first field from the line
+    with codecs.open(sys.argv[1],'r',encoding='utf-8') as inFile:
+        tweets=inFile.read().split('\n')[0:-1]
 
-    tweets=[u':-(',u'ال حمد لله']
+
+
+#    tweets=[u':-(',u'ال حمد لله']
 #    tweets=['?Hello._','http://bbc.co.uk']
 #    tweets=[u'سَنة',u'كِتاب',u'مُدّة']
 #    tweets=[u'@arutherfordium I hate you']
@@ -151,7 +152,7 @@ def main():
                     word=re.sub(httpCleanRe,'',word)
                     links[word]+=1
                 elif isAt:
-                    print '\t@-mention NOT CLEANING'
+                    if vv:print '\t@-mention NOT CLEANING'
                     ats[word]+=1
         # Count mentions and links
 
@@ -159,7 +160,8 @@ def main():
             if v:print o,
             if v:print ''
             if v:print '====================='
-        outList=[o.encode('utf-8') for o in outTweet]+lines[tt][1:]
+        outList=[o.encode('utf-8') for o in outTweet]#+tweets[tt][1:]
+        print outTweet
         outFile.writerow(outList)
 
     if vv:print links
