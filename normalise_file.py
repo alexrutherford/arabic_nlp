@@ -5,19 +5,29 @@ Input file <name>.txt; output <name>_normalised.txt'''
 #################
 import csv,re,sys
 import string
+import codecs
 import collections
-from regex import *
+from re import *
 ############
-def getWordLists():
+def getWordLists(stem=''):
 ############
-    '''Loads emoticons and words with assigned sentiments from file. Returns tuple of lists of words.'''
-    stem=''
-    stopWords=[line[0].decode('utf-8') for line in csv.reader(open(stem+'stop_words.txt','r'),delimiter='\t')]
-    negationWords=[line[0].decode('utf-8') for line in csv.reader(open(stem+'negation_words.txt','r'),delimiter='\t')]
-    exemptWords=[line[0].decode('utf-8') for line in csv.reader(open(stem+'exempt_words.txt','r'),delimiter='\t')]
+    '''Loads emoticons and words with assigned sentiments from file.
+    Returns tuple of lists of words.'''
 
-    posEmojis=[line[0].decode('utf-8') for line in csv.reader(open(stem+'pos_emojis.txt','r'),delimiter='\t')]
-    negEmojis=[line[0].decode('utf-8') for line in csv.reader(open(stem+'neg_emojis.txt','r'),delimiter='\t')]
+    with codecs.open(stem+'stop_words.txt','r',encoding='utf-8') as inFile:
+        stopWords=inFile.read().split()
+
+    with codecs.open(stem+'negation_words.txt','r',encoding='utf-8') as inFile:
+        negationWords=inFile.read().split()
+
+    with codecs.open(stem+'exempt_words.txt','r',encoding='utf-8') as inFile:
+        exemptWords=inFile.read().split()
+
+    with codecs.open(stem+'pos_emojis.txt','r',encoding='utf-8') as inFile:
+        posEmojis=inFile.read().split()
+
+    with codecs.open(stem+'neg_emojis.txt','r',encoding='utf-8') as inFile:
+        negEmojis=inFile.read().split()
 
     return stopWords,negationWords,exemptWords,posEmojis,negEmojis
 
@@ -84,7 +94,7 @@ def main():
             if v:
                 for a,b in zip(['@','HASH','HTTP','NEG','STOP','EXEMPT','EMOJI'],[isAt,isHash,isHttp,isNeg,isStop,isExempt,isEmoji]):
                     if b:print a,b,word
-            ##### 
+            #####
             if (isStop or isNeg or isExempt or isEmoji or isHttp or isHash):
                 if v:print '\tNOT CLEANING',word
                 if v:print '============='
@@ -107,7 +117,7 @@ def main():
                     # remove diacritics
                     word=re.sub(u'آ',u'ا',word)
                     if vv:print '\tAAAA>>>',word
-                    word=re.sub(alifRe,u'ا',word)   
+                    word=re.sub(alifRe,u'ا',word)
                     if vv:print '\tALIF>>>',word
                     word=re.sub(alifMaksourRe,u'ي',word)
                     if vv:print '\tALIF MAKSOURA>>>',word
@@ -151,7 +161,7 @@ def main():
             if v:print '====================='
         outList=[o.encode('utf-8') for o in outTweet]+lines[tt][1:]
         outFile.writerow(outList)
-    
+
     if vv:print links
     if vv:print ats
 
