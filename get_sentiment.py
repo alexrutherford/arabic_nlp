@@ -41,7 +41,7 @@ def main():
 ###########
     parser = argparse.ArgumentParser()
     parser.add_argument('inFilePath',help='Specify input file',type=str)
-    parser.add_argument('--stem',help='Path to files',type=str,default='')
+    parser.add_argument('--stem',help='Path to files',type=str,default='terms/')
     parser.add_argument('-p','--plot',help='Plot sentiments',action='store_true',default=False)
     parser.add_argument('-v',help='Set verbose output',action='store_true',default=False)
 
