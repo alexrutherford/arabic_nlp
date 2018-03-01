@@ -1,4 +1,4 @@
-**Summary**
+## Summary
 
 Python scripts to read in raw Arabic text, remove diacritics, perform basic normalisation and stemming and then derive sentiment from term frequency. Positive and negative words are supplied and based on Egyptian and Levantine dialects as well as Fus'ha.
 
@@ -6,18 +6,19 @@ Python scripts to read in raw Arabic text, remove diacritics, perform basic norm
 
 `get_sentiment.py` reads normalised text file, assigns a positive and a negative sentiment value to each line based on term frequency. Saves sentiments to a file
 
-**Citation**
+## Citation
 
-The list of stop words and labelled positive and negative words in based on the Masters Thesis of Amira Magdy Shoukry
-Arabic Sentence Level Sentiment Analysis
+The list of stop words and labelled positive and negative words in based on the Masters Thesis of Amira Magdy Shoukry:
+_Arabic Sentence Level Sentiment Analysis_
 American University in Cairo
 Spring 2013
 [(link)](https://dar.aucegypt.edu/handle/10526/3536)
 
-**Dependencies**
+## Dependencies
 
 `get_sentiment.py` requires NumPy and Matplotlib, otherwise all code in pure Python
 
-**To Do**
+## To Do
 
-Implement generator for memory friendly treatment of large files
+- Implement generator for memory friendly treatment of large files
+- ~~Parse arguments with `argparser`~~

@@ -8,6 +8,7 @@ import string
 import codecs
 import collections
 from regex import *
+import argparse
 ############
 def getWordLists(stem=''):
 ############
@@ -35,29 +36,26 @@ def getWordLists(stem=''):
 ############
 def main():
 ############
-    v=False
-    # Flag to print steps verbosely
+    parser = argparse.ArgumentParser()
 
-    vv=False
-    # Flag to print out completed document
+    parser.add_argument('inFilePath',help='Specify input file',type=str)
+    parser.add_argument('-v',help='Set verbose output',action='store_true',default=False)
+    parser.add_argument('-vv',help='Set very verbose output',action='store_true',default=False)
+    parser.add_argument('--stem',help='Path to files',type=str,default='')
+    args = parser.parse_args()
+
+    v=args.v
+    vv=args.vv
+    stem=args.stem
 
     if os.path.exists(sys.argv[1]):
-        outFile=csv.writer(open(sys.argv[1].partition('.')[0]+'_normalised.txt','w'),delimiter=' ')
+        outFile=csv.writer(open(args.inFilePath.partition('.')[0]+'_normalised.txt','w'),delimiter=' ')
     else:
         print 'Error: need file as first arg'
         sys.exit(1)
 
-    if '-v' in sys.argv:
-        v=True
-        print 'Set verbose'
-    if '-vv' in sys.argv:
-        vv=True
-        print 'Set very verbose'
-
     with codecs.open(sys.argv[1],'r',encoding='utf-8') as inFile:
         tweets=inFile.read().split('\n')[0:-1]
-
-
 
 #    tweets=[u':-(',u'ال حمد لله']
 #    tweets=['?Hello._','http://bbc.co.uk']
@@ -75,9 +73,9 @@ def main():
 
 
     for tt,tweet in enumerate(tweets):
-        if (tt+1)%20000==0:print tt+1,'PROCESSED....'
+        if (tt+1)%1000==0:print tt+1,'Processed....'
         tokens=re.sub(r'\r|\n','',tweet,re.U).split(r' ')
-        if v:print '++++++++\nINPUT:\n',tweet,'\n',tokens,'\n++++++++'
+        if v:print '++++++++\nInput:\n',tweet,'\n',tokens,'\n++++++++'
         outTweet=[]
 ######################
         for w,word in enumerate(tokens):
@@ -104,15 +102,15 @@ def main():
                     outTweet.append(word)
             else:
                 if not (isHttp or isAt or isEmoji):
-        # Don't clean URLs or @-mentions
-############
-## Normalising
+                    # Don't clean URLs or @-mentions
+                    ############
+                    ## Normalising
                     word=re.sub(puncRe,'',word)
                     word=re.sub(underscoreRe,'',word)
                     if vv:print '\tPUNC>>>',word
-# Remove punctuation and line endings...
-# ...but only if not emoji, otherwise keep
-# it unchanged to be counted later
+                    # Remove punctuation and line endings...
+                    # ...but only if not emoji, otherwise keep
+                    # it unchanged to be counted later
                     word=re.sub(harakatRe,u'',word,flags=re.U)
                     if vv:print '\tHARAKA>>>',word
                     # remove diacritics
@@ -129,8 +127,8 @@ def main():
                     word=re.sub(hahRe,u'ة',word)
                     if vv:print '\tTAMABUTA>>>',word
                     # Add nuktas to tama'buta
-############
-## Stemming
+                    ############
+                    ## Stemming
                     word=re.sub(alRe,'',word)
                     if vv:print '\tAL>>>',word
                     # Strips 'al' and variants at beginning of word only
@@ -160,14 +158,13 @@ def main():
             if v:print o,
             if v:print ''
             if v:print '====================='
-        outList=[o.encode('utf-8') for o in outTweet]#+tweets[tt][1:]
-        print outTweet
+        outList=[o.encode('utf-8') for o in outTweet]
         outFile.writerow(outList)
 
     if vv:print links
     if vv:print ats
 
-    linkFile=csv.writer(open('links.csv','w'),delimiter='\t')
+    linkFile=csv.writer(open(stem+'links.csv','w'),delimiter='\t')
     for k,v in links.items():linkFile.writerow([v,k.encode('utf-8')])
 if __name__=="__main__":
   main()
