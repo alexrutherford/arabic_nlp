@@ -4,7 +4,17 @@ Python scripts to read in raw Arabic text, remove diacritics, perform basic norm
 
 `normalise_file.py` reads input file, cleans and normalises text, produces normalised output file and file with all links and their frequency.
 
-`get_sentiment.py` reads normalised text file, assigns a positive and a negative sentiment value to each line based on term frequency. Saves sentiments to a file
+`get_sentiment.py` reads normalised text file, assigns a positive and a negative sentiment value to each line based on term frequency. Saves sentiments to a file.
+
+## Files
+
+- `exempt_words.txt` Words that are exempt from cleaning since they trivially match stop words or lemmatisation e.g. 'و' in 'ﻭﺎﻠﻠﻫ'  
+- `negation_words.txt` Words that can be used to negate (for more sophisticated bigram analysis)  
+- `neg_emojis.txt` Emojis that imply negative emotion  
+- `pos_emojis.txt` Emojis that imply positive emotion  
+- `neg_words.txt` Arabic words with negative sentiment  
+- `pos_words.txt` Arabic words with positive sentiment  
+- `stop_words.txt` Arabic words that do not impart meaning e.g. 'و'
 
 ## Citation
 
@@ -21,4 +31,5 @@ Spring 2013
 ## To Do
 
 - Implement generator for memory friendly treatment of large files
+- Update lists of emojis  
 - ~~Parse arguments with `argparser`~~
